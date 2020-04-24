@@ -15,11 +15,15 @@ function parse_roles(content) {
 
 }
 function create_roles_msg(roles) {
-    return `dd-ranged: ${roles['dd-ranged'].join(' ')}
-dd-melee: ${roles['dd-melee'].join(' ')}
-healer: ${roles['healer'].join(' ')}
-tank: ${roles['tank'].join(' ')}
-suplente: ${roles['suplente'].join(' ')}
+    return `
+\`\`\`diff
+- ROLES
+\`\`\`
+**dd-ranged**: ${roles['dd-ranged'].join(', ')}
+**dd-melee**: ${roles['dd-melee'].join(', ')}
+**healer**: ${roles['healer'].join(', ')}
+**tank**: ${roles['tank'].join(', ')}
+**suplente**: ${roles['suplente'].join(', ')}
 ### INFO BOT ###
 ||${JSON.stringify({ "message_type": "role", "value": roles })}||
 `
@@ -40,6 +44,7 @@ async function process_command(msg, command) {
         msg.reply("Hay un error en el comando, revisa la sintaxi")
         return
     }
+
     let event = "trial";
     let action = matches[1];
     let channel_name = event + "-" + matches[2];
@@ -55,7 +60,7 @@ async function process_command(msg, command) {
 
     let trial = await trial_manager.get_trial_params(event_channel);
 
-    if (typeof trial === "undefined" || Object.keys(trial).length == 0) {
+    if (typeof trial === "undefined"| Object.keys(trial).length == 0) {
         msg.reply("Lo sentimos, no hay " + event + " disponible")
         return
     }
@@ -77,9 +82,9 @@ async function process_command(msg, command) {
         case "add":
             if (user_in_role_list(roles, msg.author.username)) {
                 msg.reply("Ya estabas registrado en la trial, eliminate del role anterior");
-                return
+                
             }
-            if (role.startsWith("dd") && trial.value.fixed == "no-fixed-dd-type") {
+            else if (role.startsWith("dd") && trial.value.fixed == "no-fixed-dd-type") {
                 // Da igual el tipo de dd se necesita rellenar
                 let max_dd = 12 - parseInt(trial.value.qty_tank) - parseInt(trial.value.qty_healer);
                 if (max_dd > roles["dd-melee"].length + roles["dd-ranged"].length) {
@@ -87,7 +92,6 @@ async function process_command(msg, command) {
                 }
                 else {
                     msg.reply("No hay más espacio para tu role en la trial");
-                    return
                 }
 
             }
@@ -96,7 +100,6 @@ async function process_command(msg, command) {
             }
             else {
                 msg.reply("No hay más espacio para tu role en la trial");
-                return
             }
             break;
         case "remove":
@@ -107,10 +110,10 @@ async function process_command(msg, command) {
             }
             else {
                 msg.reply("No estabas registrado en la trial");
-                return
             }
             break;
         default:
+            msg.reply("Lo siento, no tengo este comando implementado");
             break;
     }
     event_channel.send(create_roles_msg(roles))
@@ -122,6 +125,6 @@ async function process_command(msg, command) {
 module.exports = {
     command: "role",
     help: `***!trial role add|remove <tipo trial> dd-ranged|dd-melee|healer|tank|suplente***: Gestiona los usuarios de una trial.
-    -->Ejemplo: *!trial add jueves-progresion healer*`,
+    -->Ejemplo: *!trial role add jueves-progresion healer*`,
     process_command: process_command
 };
