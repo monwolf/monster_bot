@@ -24,7 +24,7 @@ Now you can install it as a service and run it:
 
 ```
 #Install the service an run it
-cp -rp monster_bot/extras/monster_bot.service  /usr/lib/systemd/system/monster_bot.service
+cp -rp extras/monster_bot.service  /usr/lib/systemd/system/monster_bot.service
 systemctl enable monster_bot.service
 systemctl start monster_bot.services
 ```
