@@ -1,0 +1,8 @@
+{
+	"prefix": "!trial",
+	"token": "your-token-goes-here",
+	"dbuser": "",
+	"dbpassword":"",
+	"dbname":"",
+	"dbhost":""
+}

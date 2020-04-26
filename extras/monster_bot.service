@@ -1,0 +1,13 @@
+[Unit]
+Description=Monster_Bot a discord bot to manage trials
+Documentation=https://github.com/monwolf/monster_bot
+After=network.target
+
+[Service]
+Type=simple
+User=monster_bot
+ExecStart=/usr/bin/node /opt/monster_bot/src/index.js 
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,8 @@
+{
+    "javascript.validate.lint.comparisonOperatorsNotStrict": "warning",
+    // Controls if the editor will insert spaces for tabs. If set to auto, the value will be guessed based on the opened file.
+    "editor.insertSpaces": true,
+    "editor.tabSize": 2,
+    "editor.detectIndentation": false
+
+}
