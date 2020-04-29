@@ -1,17 +1,11 @@
-// var log4js = require('log4js')
+'use strict'
 const fs = require('fs')
 const path = require('path')
 const config = require('./config.json')
 const Discord = require('discord.js')
+const DiscordWrapper = require('./services/discord')
 const client = new Discord.Client()
 
-// var logger = log4js.getLogger('server.js')
-// logger.level = 'ALL'
-// logger.error('This is an error')
-// logger.warn('This is a warning')
-// logger.info('This is in info')
-// logger.warn('This is a debug')
-// logger.trace('This is a trace')
 var log4js = require('log4js')
 log4js.configure({
   appenders: { monster_bot: { type: 'stdout' } },
@@ -54,9 +48,9 @@ client.on('message', msg => {
     var cmd = msg.content.slice(config.prefix.length).trim().split(/ +/)[0]
     if (cmd in commands && cmd !== 'help') {
       logger.debug('Executed command ' + cmd)
-      commands[cmd].execute(msg, msg.content.slice(config.prefix.length).trim())
+      commands[cmd].execute(new DiscordWrapper(msg), msg.content.slice(config.prefix.length).trim())
     } else {
-      commands.help.execute(msg, commands)
+      commands.help.execute(new DiscordWrapper(msg), commands)
     }
   }
 })

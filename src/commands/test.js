@@ -5,18 +5,23 @@ const models = require('../models/index.js').models
 async function execute (msg, command) {
   logger.info('Hola es una funcion de test')
   logger.info(models.Trial)
-  await new models.Trial.Model(
+
+  var trial =
     {
-      user_id: 1234,
+      user_id: 12345,
       date: moment('30/01/2020 18:30', 'DD/MM/YYYY HH:mm'),
       trial_name: 'vCR+3',
       fixed: 'no-fixed-dd',
       qty_tank: 2,
       qty_healer: 2,
       qty_dd_ranged: 4,
-      qty_dd_melee: 4
+      qty_dd_melee: 4,
+      guild_id: 123456,
+      channel_id: 1234
     }
-  ).save()
+
+  await models.Trial.upsert(trial)
+
   var qresult = await models.Trial.Model.find({}).exec()
   logger.info(qresult)
 }

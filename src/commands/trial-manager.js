@@ -1,6 +1,3 @@
-var logger = require('log4js').getLogger('monster_bot')
-const utils = require('../utils.js')
-
 const PERMITTED_ROLES = ['trial-leader', 'administrador', 'administrator', 'moderador', 'moderator', 'trial leader']
 
 // const permitted_roles = ["fuu"]
@@ -16,35 +13,23 @@ const RE_QTY_HEALER = /^\dh$/
 const RE_QTY_DD_RANGED = /^\ddd-ranged$/
 const RE_QTY_MELEE = /^\ddd-melee$/
 
-function removeBotMessages (channel) {
-  channel.messages.fetch({ limit: 50 }).then(messages => {
-    for (const item of messages) {
-      const message = item[1]
-      if (message.author.bot) {
-        message.delete()
-        logger.info('deleted message:' + message.content)
-      }
-    }
-  }).catch(console.error)
-}
-
-function renderTrialMessage (args) {
+function renderTrialMessage (diswrp, args) {
   return `Atencion @everyone, <@${args.user_id}> convoca una trial
     Dia ${args.date} a las ${args.time}: (${args.trial_name})
     ${args.fixed_dd === 'no-fixed-dd' ? 'Roles para participantes (dd pueden variar)' : 'Roles para participantes (limite dd por tipo)'}
-    :tank: ${args.qty_tank}
-    :healer: ${args.qty_healer}
-    :DD: ranged: ${args.qty_dd_ranged}
-    :DD: melee: ${args.qty_dd_melee}
+    ${diswrp.getEmoji('tank')} ${args.qty_tank}
+    ${diswrp.getEmoji('healer')} ${args.qty_healer}
+    ${diswrp.getEmoji('DD')}-ranged: ${args.qty_dd_ranged}
+    ${diswrp.getEmoji('DD')}-melee: ${args.qty_dd_melee}
     :detective_tone1: 
     ### INFO BOT ###
     ||${JSON.stringify({ message_type: 'trial', value: args })}||
     `
 }
 
-function execute (msg, command) {
-  if (!msg.member.roles.cache.some(role => PERMITTED_ROLES.indexOf(role.name.toLowerCase()) >= 0)) {
-    msg.reply('No puedes pasaaar!', { files: ['https://media.giphy.com/media/P726XW1pK3Luo/giphy.gif'] })
+function execute (diswrp, command) {
+  if (!diswrp.memberHasAnyRole(PERMITTED_ROLES)) {
+    diswrp.send('No puedes pasaaar!', { isReply: true, extraOptions: { files: ['https://media.giphy.com/media/P726XW1pK3Luo/giphy.gif'] } })
     return
   }
   command = command.slice('manage'.length).trim()
@@ -52,70 +37,70 @@ function execute (msg, command) {
   if (command.startsWith('create')) {
     const args = command.slice('create'.length).trim().split(/ +/)
     const channelName = 'trial-' + args[0]
-    const channel = msg.guild.channels.cache.find(channel =>
-      channel.name === channelName
-    )
-    if (!channel) {
-      msg.reply('Lo sentimos, no hay ' + channelName + ' disponible')
+    try {
+      diswrp.selectChannel(channelName)
+    } catch (ex) {
+      diswrp.send('Lo sentimos, no hay ' + channelName + ' disponible', { isReply: true })
       return
     }
+
     var date = args[1]
     if (typeof date === 'undefined' || !date.match(RE_DATE)) {
-      msg.reply('Fecha Incorrecta')
+      diswrp.send('Fecha Incorrecta', { isReply: true })
       return
     }
     var time = args[2]
     if (typeof time === 'undefined' || !time.match(RE_TIME)) {
-      msg.reply('Hora Incorrecta')
+      diswrp.send('Hora Incorrecta', { isReply: true })
       return
     }
     var trialName = args[3]
     if (typeof trialName === 'undefined' || !trialName.match(RE_TRIAL_NAME)) {
-      msg.reply('Nombre de la trial incorrecto')
+      diswrp.send('Nombre de la trial incorrecto', { isReply: true })
       return
     }
     var fixedDamageDealer = args[4]
     if (typeof fixedDamageDealer === 'undefined' || !fixedDamageDealer.match(RE_FIXED_DD)) {
-      msg.reply('Necesito saber si los dd ranged y los melee son intercambiables')
+      diswrp.send('Necesito saber si los dd ranged y los melee son intercambiables', { isReply: true })
       return
     }
 
     var qty_tank = args[5]
     if (typeof qty_tank === 'undefined' || !qty_tank.match(RE_QTY_TANK)) {
-      msg.reply('Cantidad de tanks incorrecta')
+      diswrp.send('Cantidad de tanks incorrecta', { isReply: true })
       return
     }
     qty_tank = parseInt(qty_tank[0])
 
     var qty_healer = args[6]
     if (typeof qty_healer === 'undefined' || !qty_healer.match(RE_QTY_HEALER)) {
-      msg.reply('Cantidad de healers incorrecta')
+      diswrp.send('Cantidad de healers incorrecta', { isReply: true })
       return
     }
     qty_healer = parseInt(qty_healer[0])
 
     var qty_dd_ranged = args[7]
     if (typeof qty_dd_ranged === 'undefined' || !qty_dd_ranged.match(RE_QTY_DD_RANGED)) {
-      msg.reply('Cantidad de dd ranged incorrecta')
+      diswrp.send('Cantidad de dd ranged incorrecta', { isReply: true })
       return
     }
     qty_dd_ranged = parseInt(qty_dd_ranged[0])
 
     var qty_dd_melee = args[8]
     if (typeof qty_dd_melee === 'undefined' || !qty_dd_melee.match(RE_QTY_MELEE)) {
-      msg.reply('Cantidad de dd melee incorrecta')
+      diswrp.send('Cantidad de dd melee incorrecta', { isReply: true })
       return
     }
     qty_dd_melee = parseInt(qty_dd_melee[0])
 
     if (qty_tank + qty_dd_melee + qty_dd_ranged + qty_healer != 12) {
-      msg.reply('La suma de participantes debe ser 12')
+      diswrp.send('La suma de participantes debe ser 12', { isReply: true })
       return
     }
-    removeBotMessages(channel)
+    diswrp.removeBotMessages()
 
-    channel.send(renderTrialMessage({
-      user_id: msg.author.id,
+    diswrp.send(renderTrialMessage(diswrp, {
+      user_id: diswrp.getUserId(),
       date: date,
       time: time,
       trial_name: trialName,
@@ -128,31 +113,24 @@ function execute (msg, command) {
   } else if (command.startsWith('remove')) {
     const args = command.slice('remove'.length).trim().split('/ +/')
     const channelName = 'trial-' + args[0]
-    const channel = msg.guild.channels.cache.find(channel =>
-      channel.name === channelName
-    )
-    if (!channel) {
-      msg.reply('Lo sentimos, no hay ' + channelName + ' disponible')
+    try {
+      diswrp.selectChannel(channelName)
+    } catch (ex) {
+      diswrp.send('Lo sentimos, no hay ' + channelName + ' disponible', { isReply: true })
       return
     }
-    removeBotMessages(channel)
-    msg.reply('Eliminada trial')
+    diswrp.removeBotMessages()
+    diswrp.send('Eliminada trial', { isReply: true })
   }
 }
 
-async function getTrialParams (channel) {
-  const messages = await channel.messages.fetch({ limit: 50 })
-  let trialData = {}
-  for (const item of messages) {
-    const message = item[1]
-    if (message.author.bot) {
-      const metadata = utils.extract_metadata(message.content)
-      if (metadata.message_type === 'trial') {
-        trialData = metadata
-      }
-    }
+async function getTrialParams (diswrp) {
+  const messages = await diswrp.getMessages('trial')
+  const trial = messages[messages.length - 1]
+  if (typeof trial !== 'undefined') {
+    return diswrp.extractMetadata(trial)
   }
-  return trialData
+  return undefined
 }
 
 module.exports = {
