@@ -14,7 +14,13 @@ var trialSchema = new mongoose.Schema({
   qty_dd_melee: Number,
   guild_id: { type: Number, required: true },
   channel_id: { type: Number, required: true },
-  members: Array
+  roles: {
+    'dd-ranged': [],
+    'dd-melee': [],
+    healer: [],
+    tank: [],
+    suplente: []
+  }
 })
 
 var Trial = mongoose.model(name, trialSchema)
@@ -24,8 +30,10 @@ async function upsert (trial) {
   if (qresult.length > 0) {
     const id = qresult[0]._id
     await Trial.updateOne({ _id: id }, trial, { upsert: true })
+    return id
   } else {
-    await new Trial(trial).save()
+    const obj = await new Trial(trial).save()
+    return obj._id
   }
 }
 

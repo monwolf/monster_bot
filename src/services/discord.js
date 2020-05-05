@@ -27,6 +27,10 @@ class DiscordWrapper {
     return this._msg.guild.id
   }
 
+  getChannelId () {
+    return this._channel.id
+  }
+
   getContent () {
     return this._msg.content
   }
@@ -38,28 +42,33 @@ class DiscordWrapper {
     } else return `:${alias}:`
   }
 
-  async removeBotMessages (message_type = null) {
+  async removeBotMessages (messageType = null) {
     const messages = await this._channel.messages.fetch({ limit: this.maxFetch })
     for (const item of messages) {
       const message = item[1]
-      // eslint-disable-next-line camelcase
-      if ((message.author.bot && message_type == null) || (message.author.bot && message_type && this.extractMetadata(message.content).message_type === message_type)) {
-        message.delete()
-        this.logger.info('deleted message:' + message.content)
+      if (message.author.bot) {
+        if ((messageType == null) ||
+        (typeof messageType === 'string' && this.extractMetadata(message.content).message_type === messageType) ||
+        (messageType instanceof RegExp && message.content.match(messageType))) {
+          message.delete()
+          this.logger.info('deleted message:' + message.content)
+        }
       }
     }
   }
 
-  async getMessages (message_type = null) {
+  async getMessages (messageType = null) {
     const messages = await this._channel.messages.fetch({ limit: this.maxFetch })
     let result = []
-    // eslint-disable-next-line camelcase
-    if (message_type != null) {
+    if (messageType != null) {
       for (const item of messages) {
         const message = item[1]
-        // eslint-disable-next-line camelcase
-        if (message.author.bot && this.extractMetadata(message.content).message_type === message_type) {
-          result.push(message)
+        if (message.author.bot) {
+          if (typeof messageType === 'string' && this.extractMetadata(message.content).message_type === messageType) {
+            result.push(message)
+          } else if (messageType instanceof RegExp && message.content.match(messageType)) {
+            result.push(message)
+          }
         }
       }
     } else { result = messages }

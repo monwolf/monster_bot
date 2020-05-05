@@ -1,7 +1,9 @@
 // var logger = require('log4js').getLogger('monster_bot')
-const utils = require('../helpers/utils.js')
+// const utils = require('../helpers/utils.js')
 
 const RE_ROLE_COMMAND = /^role\s+(add|remove)\s+([a-zA-Z0-9\-_]+)\s+(dd-melee|dd-ranged|healer|tank|suplente)/
+const RE_ROLE_MSG = /-\s+ROLES/
+
 const trialManager = require('./trial-manager')
 
 function parseRoles (diswrp, content) {
@@ -13,6 +15,7 @@ function parseRoles (diswrp, content) {
   }
   return result
 }
+
 function renderRolesMessage (roles) {
   return `
 \`\`\`diff
@@ -23,13 +26,11 @@ function renderRolesMessage (roles) {
 **healer**: ${roles.healer.join(', ')}
 **tank**: ${roles.tank.join(', ')}
 **suplente**: ${roles.suplente.join(', ')}
-### INFO BOT ###
-||${JSON.stringify({ message_type: 'role', value: roles })}||
 `
 }
 function isUserInRoleList (roles, username) {
   for (const prop in roles) {
-    if (roles[prop].indexOf(username) >= 0) { return true }
+    if (Array.isArray(roles[prop]) && roles[prop].indexOf(username) >= 0) { return true }
   }
 
   return false
@@ -56,39 +57,41 @@ async function execute (diswrp, command) {
 
   const trial = await trialManager.getTrialParams(diswrp)
 
-  if (typeof trial === 'undefined' || Object.keys(trial).length === 0) {
+  if (typeof trial === 'undefined' || trial === null || Object.keys(trial).length === 0) {
     diswrp.send('Lo sentimos, no hay ' + event + ' disponible', { isReply: true })
     return
   }
-
-  const messages = await diswrp.getMessages('role')
-  const lastRoleMessage = messages[messages.length - 1]
-
-  const roles = parseRoles(diswrp, lastRoleMessage)
+  if (typeof trial.roles === 'undefined' || Object.keys(trial.roles).length === 0) {
+    const messages = await diswrp.getMessages('role')
+    const lastRoleMessage = messages[messages.length - 1]
+    trial.roles = parseRoles(diswrp, lastRoleMessage)
+  }
 
   const username = diswrp.getUserName()
   switch (action) {
     case 'add':
-      if (isUserInRoleList(roles, username)) {
+      if (isUserInRoleList(trial.roles, username)) {
         diswrp.send('Ya estabas registrado en la trial, eliminate del role anterior', { isReply: true })
-      } else if (role.startsWith('dd') && trial.value.fixed === 'no-fixed-dd-type') {
+      } else if (role.startsWith('dd') && trial.fixed === 'no-fixed-dd-type') {
         // Da igual el tipo de dd se necesita rellenar
-        const maxDamageDealer = 12 - parseInt(trial.value.qty_tank) - parseInt(trial.value.qty_healer)
-        if (maxDamageDealer > roles['dd-melee'].length + roles['dd-ranged'].length) {
-          roles[role].push(username)
+        const maxDamageDealer = 12 - parseInt(trial.qty_tank) - parseInt(trial.qty_healer)
+        if (maxDamageDealer > trial.roles['dd-melee'].length + trial.roles['dd-ranged'].length) {
+          trial.roles[role].push(username)
         } else {
           diswrp.send('No hay más espacio para tu role en la trial', { isReply: true })
         }
-      } else if (parseInt(trial.value['qty_' + role.replace('-', '_')]) > roles[role].length || role === 'suplente') {
-        roles[role].push(username)
+      } else if (parseInt(trial['qty_' + role.replace('-', '_')]) > trial.roles[role].length || role === 'suplente') {
+        trial.roles[role].push(username)
       } else {
         diswrp.send('No hay más espacio para tu role en la trial', { isReply: true })
       }
       break
     case 'remove':
-      if (isUserInRoleList(roles, username)) {
-        for (var i of Object.keys(roles)) {
-          roles[i] = roles[i].filter(item => item !== username)
+      if (isUserInRoleList(trial.roles, username)) {
+        for (var i of Object.keys(trial.roles)) {
+          if (Array.isArray(trial.roles[i])) {
+            trial.roles[i] = trial.roles[i].filter(item => item !== username)
+          }
         }
       } else {
         diswrp.send('No estabas registrado en la trial', { isReply: true })
@@ -100,7 +103,9 @@ async function execute (diswrp, command) {
   }
 
   await diswrp.removeBotMessages('role')
-  diswrp.send(renderRolesMessage(roles))
+  await diswrp.removeBotMessages(RE_ROLE_MSG)
+  await trial.save()
+  diswrp.send(renderRolesMessage(trial.roles))
 }
 
 module.exports = {

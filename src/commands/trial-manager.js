@@ -1,3 +1,6 @@
+const models = require('../models/index.js').models
+const moment = require('moment')
+
 const PERMITTED_ROLES = ['trial-leader', 'administrador', 'administrator', 'moderador', 'moderator', 'trial leader']
 
 // const permitted_roles = ["fuu"]
@@ -13,6 +16,8 @@ const RE_QTY_HEALER = /^\dh$/
 const RE_QTY_DD_RANGED = /^\ddd-ranged$/
 const RE_QTY_MELEE = /^\ddd-melee$/
 
+const RE_TRIAL_ID = /ID: ([0-9a-fA-F]{24})/
+
 function renderTrialMessage (diswrp, args) {
   return `Atencion @everyone, <@${args.user_id}> convoca una trial
     Dia ${args.date} a las ${args.time}: (${args.trial_name})
@@ -23,11 +28,12 @@ function renderTrialMessage (diswrp, args) {
     ${diswrp.getEmoji('DD')}-melee: ${args.qty_dd_melee}
     :detective_tone1: 
     ### INFO BOT ###
-    ||${JSON.stringify({ message_type: 'trial', value: args })}||
+    ID: ${args.objectId}
     `
+  //  ||${JSON.stringify({ message_type: 'trial', value: args })}||
 }
 
-function execute (diswrp, command) {
+async function execute (diswrp, command) {
   if (!diswrp.memberHasAnyRole(PERMITTED_ROLES)) {
     diswrp.send('No puedes pasaaar!', { isReply: true, extraOptions: { files: ['https://media.giphy.com/media/P726XW1pK3Luo/giphy.gif'] } })
     return
@@ -97,19 +103,24 @@ function execute (diswrp, command) {
       diswrp.send('La suma de participantes debe ser 12', { isReply: true })
       return
     }
-    diswrp.removeBotMessages()
 
-    diswrp.send(renderTrialMessage(diswrp, {
+    const trialObj = {
       user_id: diswrp.getUserId(),
-      date: date,
-      time: time,
+      guild_id: diswrp.getGuildId(),
+      channel_id: diswrp.getChannelId(),
+      date: moment(`${date} ${time}`, 'DD/MM/YYYY HH:mm'),
       trial_name: trialName,
       fixed: fixedDamageDealer,
       qty_tank: qty_tank,
       qty_healer: qty_healer,
       qty_dd_ranged: qty_dd_ranged,
       qty_dd_melee: qty_dd_melee
-    }))
+    }
+    const oid = await models.Trial.upsert(trialObj)
+    trialObj.objectId = oid
+
+    diswrp.removeBotMessages()
+    diswrp.send(renderTrialMessage(diswrp, trialObj))
   } else if (command.startsWith('remove')) {
     const args = command.slice('remove'.length).trim().split('/ +/')
     const channelName = 'trial-' + args[0]
@@ -119,18 +130,40 @@ function execute (diswrp, command) {
       diswrp.send('Lo sentimos, no hay ' + channelName + ' disponible', { isReply: true })
       return
     }
+    const trial = await getTrialParams(diswrp)
+    if (typeof trial === 'undefined' || trial === null) {
+      diswrp.send('No se ha encontrado trial', { isReply: true })
+      return
+    }
+
+    await models.Trial.Model.deleteOne({ _id: trial._id })
+
     diswrp.removeBotMessages()
     diswrp.send('Eliminada trial', { isReply: true })
   }
 }
 
 async function getTrialParams (diswrp) {
-  const messages = await diswrp.getMessages('trial')
-  const trial = messages[messages.length - 1]
+  let messages = await diswrp.getMessages('trial')
+  let trial = messages[messages.length - 1]
+  let id = null
+  // TODO: Eliminar este if cuando todas las trials esten migradas
   if (typeof trial !== 'undefined') {
-    return diswrp.extractMetadata(trial)
+    const trialObj = diswrp.extractMetadata(trial).value
+
+    trialObj.user_id = diswrp.getUserId()
+    trialObj.guild_id = diswrp.getGuildId()
+    trialObj.channel_id = diswrp.getChannelId()
+    trialObj.date = moment(`${trialObj.date} ${trialObj.date}`, 'DD/MM/YYYY HH:mm')
+    delete trialObj.time
+    id = await models.Trial.upsert(trialObj)
   }
-  return undefined
+  messages = await diswrp.getMessages(RE_TRIAL_ID)
+  trial = messages[messages.length - 1]
+  if (typeof trial !== 'undefined') {
+    id = trial.content.match(RE_TRIAL_ID)[1]
+  }
+  return await models.Trial.Model.findOne({ _id: id }).exec()
 }
 
 module.exports = {

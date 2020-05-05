@@ -1,9 +1,10 @@
 var logger = require('log4js').getLogger('monster_bot')
 const moment = require('moment')
 const models = require('../models/index.js').models
+const trialManager = require('./trial-manager')
 
-async function execute (msg, command) {
-  logger.info('Hola es una funcion de test')
+async function execute (diswrp, command) {
+  /* logger.info('Hola es una funcion de test')
   logger.info(models.Trial)
 
   var trial =
@@ -23,7 +24,10 @@ async function execute (msg, command) {
   await models.Trial.upsert(trial)
 
   var qresult = await models.Trial.Model.find({}).exec()
-  logger.info(qresult)
+  logger.info(qresult) */
+  diswrp.selectChannel('trial-jueves-progresion')
+  const trial = await trialManager.getTrialParams(diswrp)
+  console.log(trial)
 }
 
 module.exports = {
