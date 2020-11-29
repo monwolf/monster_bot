@@ -5,6 +5,7 @@ const cookieParser = require('cookie-parser')
 const fs = require('fs')
 const path = require('path')
 const basename = path.basename(__filename)
+var hbs = require('express-hbs')
 
 const app = express()
 
@@ -21,10 +22,17 @@ var init = function (conf) {
       app.use(midd.app)
     })
 
+  hbs.express4({})
+  app.set('view engine', 'hbs')
+  app.set('views', path.join(__dirname, 'http', 'templates'))
+
   app.get('/', (req, res) => {
     // not logged in res.redirect(authorizeUrl)
-    res.json('1')
+    // res.json('1')
+    res.render('index')
   })
+
+  app.use('/static', express.static(path.join(__dirname, 'http', 'public')))
 
   app.use(cookieParser())
   app.listen(conf.http_port || 8080, () => {

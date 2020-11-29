@@ -3,13 +3,14 @@ var log4js = require('log4js').getLogger('monster_bot')
 
 module.exports = {
   app: (req, res, next) => {
-    log4js.info('[SERVER] [' + req.method + '] ' + req.originalUrl)
     const urlChunks = req.url
-    if (urlChunks.includes('oauth2')) {
+    if (urlChunks.includes('oauth2') || urlChunks.includes('static') || urlChunks.includes('favicon.ico')) {
       next()
     } else if (typeof req.cookies?.token !== 'undefined' || typeof req.headers.authorization !== 'undefined' || typeof req.query.token !== 'undefined') {
+      log4js.info('[SERVER] [' + req.method + '] ' + req.originalUrl)
       next()
     } else {
+      log4js.info('[SERVER] [' + req.method + '] ' + req.originalUrl + ' --> Redirect: ' + authorizeUrl)
       res.redirect(authorizeUrl)
     }
   },
