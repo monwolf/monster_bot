@@ -1,6 +1,6 @@
 function execute (msg, command) {
   const pkg = require('../../package.json')
-  msg.send('version: ' + pkg.version, { isReply: true })
+  msg.send('version: ' + pkg.version, { messageType: msg.RESPONSE_TYPE.REPLY })
 }
 
 module.exports = {

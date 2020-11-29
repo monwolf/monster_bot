@@ -2,11 +2,13 @@
 const fs = require('fs')
 const path = require('path')
 const config = require('./config.json')
+const utils = require('./helpers/utils.js')
 const Discord = require('discord.js')
 const DiscordWrapper = require('./services/discord')
 const client = new Discord.Client()
-
 var log4js = require('log4js')
+
+const http = require('./services/http')
 log4js.configure({
   appenders: { monster_bot: { type: 'stdout' } },
   categories: {
@@ -19,12 +21,7 @@ var logger = log4js.getLogger('monster_bot')
 const commands = []
 
 // eslint-disable-next-line no-extend-native
-String.prototype.toCamelCase = function (str) {
-  return str
-    .replace(/\s(.)/g, function ($1) { return $1.toUpperCase() })
-    .replace(/\s/g, '')
-    .replace(/^(.)/, function ($1) { return $1.toLowerCase() })
-}
+String.prototype.toCamelCase = utils.toCamelCase
 
 fs.readdirSync(path.join(__dirname, '/commands/'))
   .filter(file => {
@@ -54,4 +51,7 @@ client.on('message', msg => {
     }
   }
 })
+
 client.login(config.token)
+
+http.init(config)

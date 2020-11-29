@@ -39,7 +39,7 @@ function isUserInRoleList (roles, username) {
 async function execute (diswrp, command) {
   var matches = command.match(RE_ROLE_COMMAND)
   if (!matches) {
-    diswrp.send('Hay un error en el comando, revisa la sintaxi', { isReply: true })
+    diswrp.send('Hay un error en el comando, revisa la sintaxi', { messageType: diswrp.RESPONSE_TYPE.REPLY })
     return
   }
 
@@ -51,14 +51,14 @@ async function execute (diswrp, command) {
   try {
     diswrp.selectChannel(channelName)
   } catch (ex) {
-    diswrp.send('Lo sentimos, no hay ' + event + ' disponible', { isReply: true })
+    diswrp.send('Lo sentimos, no hay ' + event + ' disponible', { messageType: diswrp.RESPONSE_TYPE.REPLY })
     return
   }
 
   const trial = await trialManager.getTrialParams(diswrp)
 
   if (typeof trial === 'undefined' || trial === null || Object.keys(trial).length === 0) {
-    diswrp.send('Lo sentimos, no hay ' + event + ' disponible', { isReply: true })
+    diswrp.send('Lo sentimos, no hay ' + event + ' disponible', { messageType: diswrp.RESPONSE_TYPE.REPLY })
     return
   }
   if (typeof trial.roles === 'undefined' || Object.keys(trial.roles).length === 0) {
@@ -71,19 +71,19 @@ async function execute (diswrp, command) {
   switch (action) {
     case 'add':
       if (isUserInRoleList(trial.roles, username)) {
-        diswrp.send('Ya estabas registrado en la trial, eliminate del role anterior', { isReply: true })
+        diswrp.send('Ya estabas registrado en la trial, eliminate del role anterior', { messageType: diswrp.RESPONSE_TYPE.REPLY })
       } else if (role.startsWith('dd') && trial.fixed === 'no-fixed-dd-type') {
         // Da igual el tipo de dd se necesita rellenar
         const maxDamageDealer = 12 - parseInt(trial.qty_tank) - parseInt(trial.qty_healer)
         if (maxDamageDealer > trial.roles['dd-melee'].length + trial.roles['dd-ranged'].length) {
           trial.roles[role].push(username)
         } else {
-          diswrp.send('No hay más espacio para tu role en la trial', { isReply: true })
+          diswrp.send('No hay más espacio para tu role en la trial', { messageType: diswrp.RESPONSE_TYPE.REPLY })
         }
       } else if (parseInt(trial['qty_' + role.replace('-', '_')]) > trial.roles[role].length || role === 'suplente') {
         trial.roles[role].push(username)
       } else {
-        diswrp.send('No hay más espacio para tu role en la trial', { isReply: true })
+        diswrp.send('No hay más espacio para tu role en la trial', { messageType: diswrp.RESPONSE_TYPE.REPLY })
       }
       break
     case 'remove':
@@ -94,11 +94,11 @@ async function execute (diswrp, command) {
           }
         }
       } else {
-        diswrp.send('No estabas registrado en la trial', { isReply: true })
+        diswrp.send('No estabas registrado en la trial', { messageType: diswrp.RESPONSE_TYPE.REPLY })
       }
       break
     default:
-      diswrp.send('Lo siento, no tengo este comando implementado', { isReply: true })
+      diswrp.send('Lo siento, no tengo este comando implementado', { messageType: diswrp.RESPONSE_TYPE.REPLY })
       break
   }
 

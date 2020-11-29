@@ -1,29 +1,41 @@
 {
   "name": "monster_bot",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "",
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
-    "dev": "nodemon src/index.js"
+    "dev": "nodemon src/index.js",
+    "test": "mocha src/tests/index.test.js"
   },
-  "keywords": ["discord", "TESO", "Elder Scrolls Online"],
+  "keywords": [
+    "discord",
+    "TESO",
+    "Elder Scrolls Online"
+  ],
   "author": "monwolf",
   "license": "ISC",
   "dependencies": {
+    "btoa": "^1.2.1",
+    "cookie-parser": "^1.4.5",
     "discord.js": "^12.2.0",
+    "express": "^4.17.1",
     "log4js": "^6.2.1",
     "moment": "^2.24.0",
-    "mongoose": "^5.9.10"
+    "mongoose": "^5.10.17",
+    "node-fetch": "^2.6.1",
+    "snekfetch": "^4.0.4"
   },
   "devDependencies": {
-    "nodemon": "^2.0.3",
+    "babel-eslint": "^10.1.0",
+    "chai": "^4.2.0",
     "eslint": "^6.8.0",
     "eslint-config-standard": "^14.1.1",
     "eslint-plugin-import": "^2.20.2",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.0.1",
-    "babel-eslint": "^10.1.0"
+    "mocha": "^8.2.1",
+    "nodemon": "^2.0.3"
   }
 }

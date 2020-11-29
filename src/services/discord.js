@@ -2,6 +2,11 @@ var log4js = require('log4js').getLogger('monster_bot')
 
 class DiscordWrapper {
   maxFetch = 50
+  RESPONSE_TYPE = {
+    REPLY: 'reply',
+    CHANNEL: 'channel',
+    DM: 'dm'
+  }
 
   constructor (message, logger = null) {
     if (!logger) { this.logger = log4js }
@@ -108,8 +113,21 @@ class DiscordWrapper {
 
   send (content, options = {}) {
     const args = (typeof options.extraOptions === 'undefined') ? {} : options.extraOptions
-    if (typeof options.isReply !== 'undefined' && options.isReply === true) {
-      this._msg.reply(content, args)
+    if (options.messageType) {
+      switch (options.messageType) {
+        case this.RESPONSE_TYPE.DM:
+          this._msg.author.send(content, args)
+          break
+        case this.RESPONSE_TYPE.REPLY:
+          this._msg.reply(content, args)
+          break
+        case this.RESPONSE_TYPE.CHANNEL:
+          this._channel.send(content, args)
+          break
+        default:
+          this._msg.reply(content, args)
+          break
+      }
     } else {
       this._channel.send(content, args)
     }

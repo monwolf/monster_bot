@@ -3,7 +3,7 @@ const mongoose = require('mongoose')
 const fs = require('fs')
 const path = require('path')
 
-const uri = `mongodb+srv://${config.dbuser}:${config.dbpassword}@${config.dbhost}/${config.dbname}?retryWrites=true&w=majority`
+const uri = `mongodb+srv://${config.database.user}:${config.database.password}@${config.database.host}/${config.database.name}?retryWrites=true&w=majority`
 
 if (typeof global.db === 'undefined') {
   const basename = path.basename(__filename)

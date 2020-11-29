@@ -46,61 +46,61 @@ async function execute (diswrp, command) {
     try {
       diswrp.selectChannel(channelName)
     } catch (ex) {
-      diswrp.send('Lo sentimos, no hay ' + channelName + ' disponible', { isReply: true })
+      diswrp.send('Lo sentimos, no hay ' + channelName + ' disponible', { messageType: diswrp.RESPONSE_TYPE.REPLY })
       return
     }
 
     var date = args[1]
     if (typeof date === 'undefined' || !date.match(RE_DATE)) {
-      diswrp.send('Fecha Incorrecta', { isReply: true })
+      diswrp.send('Fecha Incorrecta', { messageType: diswrp.RESPONSE_TYPE.REPLY })
       return
     }
     var time = args[2]
     if (typeof time === 'undefined' || !time.match(RE_TIME)) {
-      diswrp.send('Hora Incorrecta', { isReply: true })
+      diswrp.send('Hora Incorrecta', { messageType: diswrp.RESPONSE_TYPE.REPLY })
       return
     }
     var trialName = args[3]
     if (typeof trialName === 'undefined' || !trialName.match(RE_TRIAL_NAME)) {
-      diswrp.send('Nombre de la trial incorrecto', { isReply: true })
+      diswrp.send('Nombre de la trial incorrecto', { messageType: diswrp.RESPONSE_TYPE.REPLY })
       return
     }
     var fixedDamageDealer = args[4]
     if (typeof fixedDamageDealer === 'undefined' || !fixedDamageDealer.match(RE_FIXED_DD)) {
-      diswrp.send('Necesito saber si los dd ranged y los melee son intercambiables', { isReply: true })
+      diswrp.send('Necesito saber si los dd ranged y los melee son intercambiables', { messageType: diswrp.RESPONSE_TYPE.REPLY })
       return
     }
 
     var qty_tank = args[5]
     if (typeof qty_tank === 'undefined' || !qty_tank.match(RE_QTY_TANK)) {
-      diswrp.send('Cantidad de tanks incorrecta', { isReply: true })
+      diswrp.send('Cantidad de tanks incorrecta', { messageType: diswrp.RESPONSE_TYPE.REPLY })
       return
     }
     qty_tank = parseInt(qty_tank[0])
 
     var qty_healer = args[6]
     if (typeof qty_healer === 'undefined' || !qty_healer.match(RE_QTY_HEALER)) {
-      diswrp.send('Cantidad de healers incorrecta', { isReply: true })
+      diswrp.send('Cantidad de healers incorrecta', { messageType: diswrp.RESPONSE_TYPE.REPLY })
       return
     }
     qty_healer = parseInt(qty_healer[0])
 
     var qty_dd_ranged = args[7]
     if (typeof qty_dd_ranged === 'undefined' || !qty_dd_ranged.match(RE_QTY_DD_RANGED)) {
-      diswrp.send('Cantidad de dd ranged incorrecta', { isReply: true })
+      diswrp.send('Cantidad de dd ranged incorrecta', { messageType: diswrp.RESPONSE_TYPE.REPLY })
       return
     }
     qty_dd_ranged = parseInt(qty_dd_ranged[0])
 
     var qty_dd_melee = args[8]
     if (typeof qty_dd_melee === 'undefined' || !qty_dd_melee.match(RE_QTY_MELEE)) {
-      diswrp.send('Cantidad de dd melee incorrecta', { isReply: true })
+      diswrp.send('Cantidad de dd melee incorrecta', { messageType: diswrp.RESPONSE_TYPE.REPLY })
       return
     }
     qty_dd_melee = parseInt(qty_dd_melee[0])
 
     if (qty_tank + qty_dd_melee + qty_dd_ranged + qty_healer != 12) {
-      diswrp.send('La suma de participantes debe ser 12', { isReply: true })
+      diswrp.send('La suma de participantes debe ser 12', { messageType: diswrp.RESPONSE_TYPE.REPLY })
       return
     }
 
@@ -127,19 +127,19 @@ async function execute (diswrp, command) {
     try {
       diswrp.selectChannel(channelName)
     } catch (ex) {
-      diswrp.send('Lo sentimos, no hay ' + channelName + ' disponible', { isReply: true })
+      diswrp.send('Lo sentimos, no hay ' + channelName + ' disponible', { messageType: diswrp.RESPONSE_TYPE.REPLY })
       return
     }
     const trial = await getTrialParams(diswrp)
     if (typeof trial === 'undefined' || trial === null) {
-      diswrp.send('No se ha encontrado trial', { isReply: true })
+      diswrp.send('No se ha encontrado trial', { messageType: diswrp.RESPONSE_TYPE.REPLY })
       return
     }
 
     await models.Trial.Model.deleteOne({ _id: trial._id })
 
     diswrp.removeBotMessages()
-    diswrp.send('Eliminada trial', { isReply: true })
+    diswrp.send('Eliminada trial', { messageType: diswrp.RESPONSE_TYPE.REPLY })
   }
 }
 

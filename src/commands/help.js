@@ -3,7 +3,7 @@ function execute (msg, commands) {
   for (const cmd in commands) {
     h = h + commands[cmd].help + '\n\n'
   }
-  msg.send(h, { isReply: true })
+  msg.send(h, { messageType: msg.RESPONSE_TYPE.REPLY })
 }
 
 module.exports = {

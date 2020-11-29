@@ -1,8 +1,15 @@
 {
-	"prefix": "!trial",
-	"token": "your-token-goes-here",
-	"dbuser": "",
-	"dbpassword":"",
-	"dbname":"",
-	"dbhost":""
+  "prefix": "!trial",
+  "token": "your-token-goes-here",
+  "database": {
+    "user": "",
+    "password": "",
+    "name": "",
+    "host": ""
+  },
+  "oauth2": {
+    "client_id": "",
+    "client_secret": "",
+    "redirect_url": "http://localhost:8080/oauth2/authorize"
+  }
 }
