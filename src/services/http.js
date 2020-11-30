@@ -6,6 +6,7 @@ const fs = require('fs')
 const path = require('path')
 const basename = path.basename(__filename)
 var hbs = require('express-hbs')
+const DiscordApi = require('./discord-api')
 
 const app = express()
 
@@ -27,9 +28,9 @@ var init = function (conf) {
   app.set('views', path.join(__dirname, 'http', 'templates'))
 
   app.get('/', (req, res) => {
-    // not logged in res.redirect(authorizeUrl)
-    // res.json('1')
-    res.render('index')
+    const api = new DiscordApi(req.query.token)
+    api.getGuilds()
+      .then(guilds => res.render('index', { guilds: guilds }))
   })
 
   app.use('/static', express.static(path.join(__dirname, 'http', 'public')))
