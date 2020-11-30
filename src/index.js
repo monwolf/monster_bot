@@ -54,4 +54,4 @@ client.on('message', msg => {
 
 client.login(config.token)
 
-http.init(config)
+http.init(config, client)

@@ -38,7 +38,7 @@ app.get('/oauth2/authorize', (req, res) => {
   redirectToken(req.query.code, res)
 })
 
-const init = function (conf) {
+const init = function (conf, bot) {
   clientId = conf.oauth2.client_id
   clientSecret = conf.oauth2.client_secret
   redirectUrl = conf.oauth2.redirect_url

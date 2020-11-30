@@ -10,7 +10,7 @@ const DiscordApi = require('./discord-api')
 
 const app = express()
 
-var init = function (conf) {
+var init = function (conf, bot) {
   /* include all files */
   fs.readdirSync(path.join(__dirname, 'http'))
     .filter(file => {
@@ -19,7 +19,7 @@ var init = function (conf) {
     .forEach(file => {
       log4js.trace('[SERVER] Including file: ' + file)
       var midd = require('./http/' + file)
-      midd.init(conf)
+      midd.init(conf, bot)
       app.use(midd.app)
     })
 

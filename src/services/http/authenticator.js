@@ -14,6 +14,6 @@ module.exports = {
       res.redirect(authorizeUrl)
     }
   },
-  init: function (conf) { }
+  init: function (conf, bot) { }
 
 }
