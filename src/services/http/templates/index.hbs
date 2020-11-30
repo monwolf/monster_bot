@@ -40,7 +40,7 @@
         </div>
         <ul class="nav">
           <li class="active ">
-            <a href="/">
+            <a href="/?token={{token}}">
               <i class="tim-icons icon-chart-pie-36"></i>
               <p>Dashboard</p>
             </a>
@@ -213,7 +213,7 @@
                 <div class="row">
                   <div class="col-sm-6 text-left">
                     <h5 class="card-category">Selecciona la guild si no es correcta</h5>
-                    <h2 class="card-title">Guilds</h2>
+                    <h2 class="card-title">Guilds </h2>
                   </div>
                   <div class="col-sm-6">
 
@@ -221,7 +221,7 @@
                 </div>
               </div>
               <div class="card-body">
-                <div class="chart-area">
+                <div class="row">
 <!--                  <div class="dropdown ">
                     <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
                       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -232,16 +232,19 @@
                       <a class="dropdown-item" href="#">{{this.name}}</a>
                       {{/each}}
                     </div>
-                  </div>-->
+                  </div> -->
+                  
                 {{#each guilds}}
-                <div class="card" style="width: 20rem;">
-                  <img class="card-img-top" src="https://cdn.discordapp.com/icons/{{this.id}}/{{this.icon}}.png" alt="Card image cap">
-                  <div class="card-body">
-                    <h4 class="card-title">{{this.name}}</h4>
-                    <p class="card-text"></p>
-                    <a href="/guild/{{this.id}}?token={{token}}" class="btn btn-primary">Check This Guild</a>
+                <div class="col-lg-3">
+                  <div class="card" style="width: 15rem;">
+                    <img class="card-img-top" src="https://cdn.discordapp.com/icons/{{this.id}}/{{this.icon}}.png" alt="Card image cap">
+                    <div class="card-body">
+                      <h4 class="card-title">{{this.name}}</h4>
+                      <p class="card-text"></p>
+                      <a href="/guild/{{this.id}}?token={{../token}}" class="btn btn-primary">Check This Guild</a>
+                    </div>                  
                   </div>
-                </div>
+                </div>                
                 {{/each}}
 
               </div>
@@ -249,6 +252,7 @@
           </div>
         </div>
       </div>
+      <
       <div class="row">
         <div class="col-lg-4">
           <div class="card card-chart">
@@ -660,7 +664,7 @@
   <script src="/static/assets/js/core/jquery.min.js"></script>
   <script src="/static/assets/js/core/popper.min.js"></script>
   <script src="/static/assets/js/core/bootstrap.min.js"></script>
-  <script src="/static/assets/js/plugins/perfect-scrollbar.jquery.min.js"></script>
+  <!-- <script src="/static/assets/js/plugins/perfect-scrollbar.jquery.min.js"></script> -->
   <!--  Google Maps Plugin    -->
   <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_KEY_HERE"></script>
   <!-- Chart JS -->
