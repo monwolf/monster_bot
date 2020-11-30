@@ -17,7 +17,7 @@ var init = function (conf) {
       return (file.indexOf('.') !== 0) && (file !== basename) && (file.slice(-3) === '.js')
     })
     .forEach(file => {
-      log4js.info('Require' + file)
+      log4js.trace('[SERVER] Including file: ' + file)
       var midd = require('./http/' + file)
       midd.init(conf)
       app.use(midd.app)
@@ -28,9 +28,10 @@ var init = function (conf) {
   app.set('views', path.join(__dirname, 'http', 'templates'))
 
   app.get('/', (req, res) => {
-    const api = new DiscordApi(req.query.token)
+    const token = req.query.token
+    const api = new DiscordApi(token)
     api.getGuilds()
-      .then(guilds => res.render('index', { guilds: guilds }))
+      .then(guilds => res.render('index', { guilds: guilds, token: token }))
   })
 
   app.use('/static', express.static(path.join(__dirname, 'http', 'public')))
